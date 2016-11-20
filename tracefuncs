@@ -1,0 +1,121 @@
+source ~/.../lib/assert-decent-shell || return
+
+function ...istracing {
+    [[ -n "$DOTDOTDOT_TRACE" ]]
+}
+function ...ansiecho {
+    local ansi_escape=$1
+    shift
+    echo -e "$DOTDOTDOT_TRACE_INDENT…\e[${ansi_escape}m$@\e[0m"
+}
+
+function ...echo_red {
+    ...ansiecho 31 "$@"
+}
+function ...echo_green {
+    ...ansiecho 32 "$@"
+}
+function ...echo_yellow {
+    ...ansiecho 33 "$@"
+}
+function ...echo_blue {
+    ...ansiecho 34 "$@"
+}
+function ...echo_cyan {
+    ...ansiecho 36 "$@"
+}
+function ...echo_purple {
+    ...ansiecho 35 "$@"
+}
+
+function ...debug {
+    ...istracing && ...echo_blue "$@" || true
+}
+function ...debug2 {
+    ...istracing && ...echo_cyan "$@" || true
+}
+function ...debug3 {
+    ...istracing && ...echo_purple "$@" || true
+}
+function ...debug4 {
+    ...istracing && ...echo_green "$@" || true
+}
+
+function ...info {
+    ...echo_green "$@"
+}
+function ...warn {
+    ...echo_yellow "$@"
+}
+function ...ohno {
+    ...echo_red "$@"
+}
+
+function ...die {
+    ...ohno "$@"
+    exit 86
+}
+
+...trace-indent() {
+    DOTDOTDOT_TRACE_INDENT="  $DOTDOTDOT_TRACE_INDENT"
+}
+...trace-outdent() {
+    DOTDOTDOT_TRACE_INDENT="${DOTDOTDOT_TRACE_INDENT#  }"
+}
+
+...fully-qualify() {
+    local fn="$@"
+    expr $fn : '[/~]' >/dev/null || fn=`pwd`/$fn
+    echo $fn
+}
+
+# I bet there's a way to do this without requiring $0 to be passed in. -rking
+function ...filestart {
+    ...debug4 "START → \e[0m$@"
+    ...trace-indent
+}
+function ...fileend {
+    ...trace-outdent
+    ...debug3 "END ← \e[0m$@"
+}
+
+function ...traceon {
+    export DOTDOTDOT_TRACE=1; set -x
+}
+function ...traceoff {
+    unset DOTDOTDOT_TRACE; set +x
+}
+function ...trace {
+    (
+        ...traceon
+        DOTDOTDOT_TRACE_INDENT=''
+        local cmd=''
+        if [ 0 != $# ]; then
+            echo -n '[Running: '; printf "<%s> " "$@"; echo ']'
+            "$@"
+        elif [ -n "$SHELLNAME" ]; then
+            $SHELLNAME
+        else
+            $SHELL
+        fi
+        ...info "(Back in original shell, SHLVL=$SHLVL)"
+    ) # TODO: 2>&1 | less --quit-if-one-screen --raw-control-chars
+}
+function ...traceq { ## trace shell and quit
+    ...trace $SHELLNAME "$@" -c 'echo in subshell, SHLVL=$SHLVL'
+}
+function ...tracex {
+    ...traceq "$@" -x
+}
+# On these next ones, don't forget about calling with -x for more loudness:
+function ...tracei { ## "interactive"
+    ...traceq "$@" -i
+}
+function ...tracel { ## "login"
+    ...traceq "$@" -l
+}
+function ...tracef { ## zsh has this as --no-rcs
+    ...traceq "$@" -f
+}
+
+# vim:ft=zsh

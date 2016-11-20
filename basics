@@ -1,0 +1,23 @@
+source ~/.../lib/assert-decent-shell || return
+
+source ~/.../lib/tracefuncs
+...filestart "~/.../lib/basics"
+
+eval `~/.../bin/... env`
+...debug2 "Did eval \`... env\`, producing: `~/.../bin/... env`"
+
+if [ -n "$ZSH_VERSION" ]; then
+    eval "dotdotdot_order=($DOTDOTDOT_ORDER)"
+    ...debug2 " (Also set \$dotdotdot_order array)"
+fi
+
+source ~/.../lib/scripting
+source ~/.../lib/path-manip
+
+...path-prepend ~/.../bin
+...path-prepend ~/bin
+
+...source ~/.../lib/set-shellname # makes $SHELLNAME = "zsh" or "bash"
+
+...fileend "~/.../lib/basics"
+# vim:ft=zsh

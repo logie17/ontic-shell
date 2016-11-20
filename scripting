@@ -1,0 +1,135 @@
+source ~/.../lib/assert-decent-shell || return
+
+source "$HOME/.../lib/tracefuncs"
+
+# Hop to a repo for quick git'ing.
+...repo() {
+    builtin cd "$HOME/.../src"
+    if [ -z "$1" ]; then
+        return
+    fi
+    if [ -e "$1" ]; then
+        cd "$1"
+    elif [ -e "$1-dots" ]; then
+        cd "$1-dots"
+    else
+        echo "Hrm. Not sure what to do with \`$1\`."
+    fi
+}
+alias ...src=...repo # "...src" is a bit confusing vs. "...source", but hey.
+
+# Hop to the repo owning the named file and edit it from there.
+function ...@ {
+    local file_name="$1"
+    if [ ! -e "$file_name" ]; then
+        file_name="`which $1`"
+        if [ ! -e "$file_name" ]; then
+            file_name="$HOME/$1"
+            if [ ! -e "$file_name" ]; then
+                echo "No '$1' locally, in \$PATH, or in \$HOME"
+                return
+            fi
+        fi
+    fi
+    if [ -L "$file_name" ]; then
+        file_name=$(readlink "$file_name")
+    fi
+    local dir=$(dirname "$file_name")
+    echo "Editing $file_name (in $dir)"
+    builtin cd "$dir"
+    ${VISUAL:-${EDITOR:-vim}} "$file_name"
+
+    if [ ! -d .git -a "$HOME" != "`pwd`" ]; then
+        cd ..
+    fi
+    [ -d .git ] && git status -s
+    pwd
+}
+
+
+# These next funcs are copy&pasted. Fix soon. -rking
+...each() {
+    (
+        for dir in `echo $DOTDOTDOT_ORDER`; do
+            ...info "[ In $dir ]"
+            ( builtin cd $dir; eval "$@" )
+        done
+    )
+}
+...quieteach() {
+    (
+        for dir in `echo $DOTDOTDOT_ORDER`; do
+            ( builtin cd $dir; eval "$@" )
+        done
+    )
+}
+...EACH() {(
+    DOTDOTDOT_ORDER="$HOME/... $DOTDOTDOT_ORDER"
+    ...each "$@"
+)}
+...eachsource() {
+    if [ -z "$ZSH_VERSION" ]; then
+        for n in $DOTDOTDOT_ORDER; do
+            [ -e $n/$1 ] && ...source $n/$1
+        done
+    else
+        source ~/.../lib/eachsource.zsh "$@"
+    fi
+}
+
+# By using this you get ...trace abilities, plus it guards against recursion
+function ...source {
+    local fullname="`...fully-qualify $1`"
+    # Once everyone has loop-dots a00e296 or higher, we can simplify:
+    if expr "$fullname" : ".*loop-dots" > /dev/null; then
+        ...debug2 "(Wisely skipping $fullname, to prevent a loop.)"
+    elif expr "$1" : ".*\\.sw.$" > /dev/null; then
+        ...debug2 "(Skipping $1, which appears to be a vim swapfile.)"
+    else
+        ...filestart "$1"
+        source $@
+        ...fileend "$@"
+    fi
+}
+function ...sourceif {
+    # Quietly fails if it doesn't find the file (unless you ...traceon). Be a
+    # bit careful with it.
+    if [ -e $1 ]; then
+        ...source "$@"
+    else
+        ...debug3 "No $1 in \e[0m`pwd`"
+    fi
+}
+alias sourceif=...sourceif # Backwards compatibility.
+
+...sourcedircontents() {
+    d=$1
+    [ -d $d ] || return
+    ...debug2 "Sourcing contents of $d/*"
+
+    # XXX This FIFO filename technique does not work on OSX
+    #source <(find $d/* -prune \! -type d \! -name '.*.sw?' -exec cat {} +)
+    # Use this hack for now:
+    (find $d/* -prune \! -type d \! -name '.*.sw?' -exec cat {} + > /tmp/$$) 2>/dev/null
+    [ $? -eq 0 ] || return
+    #find $d -type f -prune \! -type d \! -name '.*.sw?' -exec cat {} + > /tmp/$$
+    source /tmp/$$
+    rm /tmp/$$
+
+    if [ $? != 0 ]; then
+        (
+            ...traceon
+            ...warn "Oops. Had a problem. Trying $d/* individually to debug:"
+            for n in $d/*; do
+                ...source $n
+                [ $? != 0 ] && ...debug3 "(Exit code: $?)"
+            done
+        )
+    fi
+}
+
+...vote() {
+    ...quieteach 'git ls-files | xargs show-votes'
+}
+
+# vim:ft=zsh
