@@ -73,7 +73,7 @@ function ...@ {
             [ -e $n/$1 ] && ...source $n/$1
         done
     else
-        source ~/.../lib/eachsource.zsh "$@"
+        source ~/.ontic/lib/eachsource.zsh "$@"
     fi
 }
 
