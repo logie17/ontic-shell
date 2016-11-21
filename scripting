@@ -1,10 +1,10 @@
-source ~/.../lib/assert-decent-shell || return
+source ~/.ontic/lib/assert-decent-shell || return
 
-source "$HOME/.../lib/tracefuncs"
+source "$HOME/.ontic/lib/tracefuncs"
 
 # Hop to a repo for quick git'ing.
 ...repo() {
-    builtin cd "$HOME/.../src"
+    builtin cd "$HOME/.ontic/src"
     if [ -z "$1" ]; then
         return
     fi
@@ -64,7 +64,7 @@ function ...@ {
     )
 }
 ...EACH() {(
-    DOTDOTDOT_ORDER="$HOME/... $DOTDOTDOT_ORDER"
+    DOTDOTDOT_ORDER="$HOME/.ontic $DOTDOTDOT_ORDER"
     ...each "$@"
 )}
 ...eachsource() {

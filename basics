@@ -1,23 +1,24 @@
-source ~/.../lib/assert-decent-shell || return
+source ~/.ontic/lib/assert-decent-shell || return
 
-source ~/.../lib/tracefuncs
+source ~/.ontic/lib/tracefuncs
 ...filestart "~/.../lib/basics"
 
-eval `~/.../bin/... env`
-...debug2 "Did eval \`... env\`, producing: `~/.../bin/... env`"
+#There is the ontic executive
+#eval `~/.ontic/bin/... env`
+#...debug2 "Did eval \`... env\`, producing: `~/.../bin/... env`"
 
 if [ -n "$ZSH_VERSION" ]; then
     eval "dotdotdot_order=($DOTDOTDOT_ORDER)"
     ...debug2 " (Also set \$dotdotdot_order array)"
 fi
 
-source ~/.../lib/scripting
-source ~/.../lib/path-manip
+source ~/.ontic/lib/scripting
+source ~/.ontic/lib/path-manip
 
-...path-prepend ~/.../bin
-...path-prepend ~/bin
+#...path-prepend ~/.../bin
+#...path-prepend ~/bin
 
-...source ~/.../lib/set-shellname # makes $SHELLNAME = "zsh" or "bash"
+...source ~/.ontic/lib/set-shellname # makes $SHELLNAME = "zsh" or "bash"
 
-...fileend "~/.../lib/basics"
+...fileend "~/.ontic/lib/basics"
 # vim:ft=zsh
