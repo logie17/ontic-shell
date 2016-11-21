@@ -1,4 +1,4 @@
-source ~/.../lib/assert-decent-shell || return
+source ~/.ontic/lib/assert-decent-shell || return
 
 function ...istracing {
     [[ -n "$DOTDOTDOT_TRACE" ]]
