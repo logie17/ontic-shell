@@ -1,4 +1,4 @@
-source ~/.../lib/assert-decent-shell || return
+source ~/.ontic/lib/assert-decent-shell || return
 
 if [ -n "$ZSH_VERSION" ]; then
     export SHELLNAME=zsh
