@@ -4,7 +4,7 @@ source ~/.ontic/lib/tracefuncs
 ...filestart "~/.../lib/basics"
 
 #There is the ontic executive
-eval `~/.ontic/bin/... env`
+eval `~/go/bin/ontic env`
 ...debug2 "Did eval \`... env\`, producing: `~/.../bin/... env`"
 
 if [ -n "$ZSH_VERSION" ]; then
