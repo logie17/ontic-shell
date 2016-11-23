@@ -1,11 +1,11 @@
 source ~/.ontic/lib/assert-decent-shell || return
 
 source ~/.ontic/lib/tracefuncs
-...filestart "~/.../lib/basics"
+...filestart "~/.ontic/lib/basics"
 
 #There is the ontic executive
 eval `~/go/bin/ontic env`
-...debug2 "Did eval \`... env\`, producing: `~/.../bin/... env`"
+...debug2 "Did eval \`~/go/bin/ontic env\`, producing: `~/go/bin/ontic env`"
 
 if [ -n "$ZSH_VERSION" ]; then
     eval "dotdotdot_order=($DOTDOTDOT_ORDER)"
